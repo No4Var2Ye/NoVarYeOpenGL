@@ -1,0 +1,7 @@
+
+# Workspace file
+*.code-workspace
+
+# Folders
+REFS/
+docs/
