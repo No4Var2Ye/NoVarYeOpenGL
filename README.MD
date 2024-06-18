@@ -13,7 +13,12 @@
 
 # 命令
 
+<<<<<<< HEAD
 ``` shell
 gcc ./src/glad.c -c -I ./include/ // 生成 .o文件
 ar -rc libglad.a glad.o           // 生成我们所需要的 .a文件
 ```
+=======
+gcc ./src/glad.c -c -I ./include/ // 生成 .o文件
+ar -rc libglad.a glad.o           // 生成我们所需要的 .a文件
+>>>>>>> c40ad6daaba4f8af176cfc731769d5b21d4b0022

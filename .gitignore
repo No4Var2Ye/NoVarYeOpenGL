@@ -3,7 +3,12 @@
 *.code-workspace
 
 # Folders
+<<<<<<< HEAD
 .vscode/
 REFS/
 docs/
 note/
+=======
+REFS/
+docs/
+>>>>>>> c40ad6daaba4f8af176cfc731769d5b21d4b0022
