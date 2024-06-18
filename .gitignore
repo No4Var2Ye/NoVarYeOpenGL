@@ -1,0 +1,9 @@
+
+# Workspace file
+*.code-workspace
+
+# Folders
+.vscode/
+REFS/
+docs/
+note/
