@@ -6,6 +6,9 @@
             "type": "cppbuild",
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
+                "-std=c++17",
+                "-fexec-charset=GBK",
+                "${workspaceFolder}\\src\\*.cpp",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
@@ -29,8 +32,6 @@
                 "-mwindows",
                 "-Wall",
                 "-static-libgcc",
-                "-fexec-charset=GBK",
-                "-std=c++17"
             ],
             "group": {
                 "kind": "build",
