@@ -6,7 +6,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings 设置
-const unsigned int SCR_WIDTH = 800; // 窗口宽度
+const unsigned int SCR_WIDTH = 1000; // 窗口宽度
 const unsigned int SCR_HEIGHT = 800; // 窗口高度
 
 // glsl
@@ -40,7 +40,7 @@ int main()
     // 创建窗口对象
     // glfw window creation
     // --------------------
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "NoVarYeOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -60,7 +60,7 @@ int main()
     }
 
     // 构建和编译着色器程序
-    // build and compile our shader program
+    // build and compile our shader program 
     // ------------------------------------
     // vertex shader 顶点着色器
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -113,32 +113,23 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,   // 右上角
-        0.5f, -0.5f, 0.0f,  // 右下角
-        -0.5f, -0.5f, 0.0f, // 左下角
-        -0.5f, 0.5f, 0.0f   // 左上角
-    };
-    unsigned int indices[] = {
-        0, 1, 3, // 上三角
-        1, 2, 3  // 下三角
+        -0.5f, -0.5f, 0.0f, // 左顶点
+        0.5f, -0.5f, 0.0f,  // 右顶点
+        0.0f, 0.5f, 0.0f    // 上顶点
     };
 
-    unsigned int VBO, EBO, VAO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
     // 将顶点数据复制到缓冲区对象中
     // GL_STATIC_DRAW 指定数据不会或几乎不会改变
     // GLL_DYNAMIC_DRAW 指定数据会被改变很多
     // GL_STREAM_DRAW 指定数据每次绘制时都会改变
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); 
 
     // 设置顶点属性指针
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
@@ -149,10 +140,13 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // 取消注释此调用以绘制线框多边形
+    // 取消注释此调用以绘制线框多边形。
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // render loop 渲染循环
+    // 渲染循环
+    // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
@@ -171,8 +165,7 @@ int main()
         // 开始绘制
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // 交换缓冲区并处理IO事件
         // glfw: swap buffers and poll IO events
@@ -186,7 +179,6 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
     // 终止，清理所有之前分配的GLFW资源
@@ -203,20 +195,6 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    // 检测 F3 按键是否按下
-    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS)
-    {
-        // 获取当前的多边形模式
-        GLint polygonMode;
-        glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
-
-        // 切换多边形模式
-        if (polygonMode == GL_LINE)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // 切换为填充模式
-        else
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // 切换为线框模式
-    }
 }
 
 // glfw: 当窗口大小改变时调用此回调函数

@@ -12,7 +12,8 @@
                 "-I",
                 "${workspaceFolder}/include",
                 "-o",
-                "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
+                "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+                // "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
                 // "${fileDirname}\\${workspaceRootFolderName}.exe",
                 "-L",
                 "${workspaceFolder}/lib",
@@ -47,7 +48,7 @@
             "label": "run",
             "type": "shell",
             "dependsOn": "build",
-            "command": "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
+            "command": "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
             "group": {
                 "kind": "test",
                 "isDefault": true

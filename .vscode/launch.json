@@ -5,10 +5,10 @@
             "name": "gcc build and debug active file",
             "type": "cppdbg",
             "request": "launch",  // "launch" or "attach"
-            "program": "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
+            "program": "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
