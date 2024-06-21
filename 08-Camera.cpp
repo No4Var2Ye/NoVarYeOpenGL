@@ -210,7 +210,7 @@ int main()
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    imagePath = "assets/textures/awesomeface.png";
+    imagePath = "assets/textures/Eye.png";
     // load image, create texture and generate mipmaps
     data = stbi_load(imagePath.c_str(), &width, &height, &nrChannels, 0);
     if (data)
