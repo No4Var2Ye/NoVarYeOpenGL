@@ -8,6 +8,7 @@
 #include <GLM/gtc/type_ptr.hpp>
 
 #include <NoVarYe/shader.h>
+#include <NoVarYe/camera.h>
 
 #include <iostream>
 #include <cmath>
@@ -17,14 +18,28 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // settings 设置
-const unsigned int SCR_WIDTH = 800;  // 窗口宽度
-const unsigned int SCR_HEIGHT = 600; // 窗口高度
+const unsigned int SCR_WIDTH = 1200; // 窗口宽度
+const unsigned int SCR_HEIGHT = 900; // 窗口高度
 
 // stores how much we're seeing of either texture
 float mixValue = 0.2f;
+
+// camera
+glm::vec3 cameraInitPos = glm::vec3(0.0f, 0.0f, 3.0f);
+Camera camera(cameraInitPos);
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+// 帧差
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 int main()
 {
@@ -50,8 +65,13 @@ int main()
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwMakeContextCurrent(window);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // 鼠标指针处理模式
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // 加载所有OpenGL函数指针
     // glad: load all OpenGL function pointers
@@ -220,18 +240,24 @@ int main()
     // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
     // -----------------------------------------------------------------------------------------------------------
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    customizedShader.setMat4("projection", projection); 
+    customizedShader.setMat4("projection", projection);
 
     // render loop 渲染循环
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        // per-frame time logic
+        // --------------------
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // 键盘输入
         // -----
         processInput(window);
 
         // 开始渲染
-        // ------ 
+        // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         // GL_COLOR_BUFFER_BIT: 指定颜色缓冲区
         // GL_DEPTH_BUFFER_BIT: 指定深度缓冲区
@@ -252,12 +278,12 @@ int main()
         // get matrix's uniform location and set matrix
         customizedShader.use();
 
+        // pass projection matrix to shader (note that in this case it could change every frame)
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        customizedShader.setMat4("projection", projection);
+
         // camera/view transformation
-        glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        float radius = 10.0f;
-        float camX = static_cast<float>(sin(glfwGetTime()) * radius);
-        float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-        view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 view = camera.GetViewMatrix();
         customizedShader.setMat4("view", view);
 
         // render boxes
@@ -303,6 +329,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    // Esc
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
@@ -320,6 +347,7 @@ void processInput(GLFWwindow *window)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // 切换为线框模式
     }
 
+    // up and down
     // Adjust mixValue
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
@@ -333,9 +361,55 @@ void processInput(GLFWwindow *window)
         if (mixValue <= 0.0f)
             mixValue = 0.0f;
     }
+
+    // WASD
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+    // if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+    {
+        camera.resetToDefaults(cameraInitPos);
+    }
 }
 
-// glfw: 当窗口大小改变时调用此回调函数
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+// 当窗口大小改变时调用此回调函数
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
