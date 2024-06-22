@@ -7,11 +7,13 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
 
-#include <NoVarYe/shader.h>
-#include <NoVarYe/camera.h>
-#include <NoVarYe/model.h>
+#include "NoVarYe/shader.h"
+#include "NoVarYe/camera.h"
+#include "NoVarYe/model.h"
+#include "NoVarYe/vertex.h"
 
 #include <iostream>
+#include <vector>
 #include <cmath>
 #include <string>
 #include <fstream>
@@ -22,7 +24,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-// unsigned int loadTexture(const char *path);
 
 // settings 设置
 const unsigned int SCR_WIDTH = 1200; // 窗口宽度
@@ -45,6 +46,13 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(0.0f, 30.0f, 30.0f);
+
+// 模型路径
+const char *modelPath = "assets/models/ANBY/anby.obj";
+// const char *modelPath = "assets/models/lly/scene.obj";
+// Model ourModel("assets/models/lly/scene.obj");
+// Model ourModel("assets/models/cup/cup.obj");
+// Model ourModel("assets/models/nanosuit/nanosuit.obj");
 
 int main()
 {
@@ -93,69 +101,23 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
-    // Shader ourShader("shaders/10/shader.vs", "shaders/10/shader_multiple_lights.fs");
-    // Shader lightSourceShader("shaders/light_source/light_source.vs", "shaders/light_source/light_source.fs");
     Shader ourShader("shaders/loading/model_loading.vs", "shaders/loading/model_loading.fs");
     Shader lightSourceShader("shaders/light_source/light_source.vs", "shaders/light_source/light_source.fs");
 
     // load models
     // -----------
-    // Model ourModel("assets/models/ANBY/anby.obj");
-    Model ourModel("assets/models/xyy/girls.obj");
-    // Model ourModel("assets/models/lly/scene.obj");
-    // Model ourModel("assets/models/cup/cup.obj");
-    // Model ourModel("assets/models/nanosuit/nanosuit.obj");
+    Model ourModel(modelPath);
 
-    float vertices[] = {
-        // positions         // normals         // texture coords
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    std::vector<float> vertices = generateCubeVertices();
+    const float *vertexDataPtr = static_cast<const float *>(vertices.data());
 
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
-        glm::vec3(20.0f, 30.0f, 20.0f),
-        glm::vec3(20.0f, 30.0f, -20.0f),
-        glm::vec3(-20.0f, 30.0f, 20.0f),
-        glm::vec3(-20.0f, 30.0f, -20.0f)};
+        glm::vec3(20.0f, 20.0f, 20.0f),
+        glm::vec3(20.0f, 20.0f, -20.0f),
+        glm::vec3(-20.0f, 20.0f, 20.0f),
+        glm::vec3(-20.0f, 20.0f, -20.0f)};
 
     // light source
     unsigned int VBO, lightCubeVAO;
@@ -164,7 +126,7 @@ int main()
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertexDataPtr, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
@@ -191,8 +153,8 @@ int main()
         // 开始渲染
         // ------
         // glClearColor(0.23f, 0.23f, 0.23f, 1.0f);
-        // glClearColor(0.75f, 0.52f, 0.3f, 1.0f);
-        glClearColor(1.0f, 0.7f, 0.9f,0.82f);
+        glClearColor(0.75f, 0.52f, 0.3f, 1.0f);
+        // glClearColor(1.0f, 0.7f, 0.9f,0.82f);
         // GL_COLOR_BUFFER_BIT: 指定颜色缓冲区
         // GL_DEPTH_BUFFER_BIT: 指定深度缓冲区
         // GL_STENCIL_BUFFER_BIT: 指定模板缓冲区
@@ -215,9 +177,25 @@ int main()
 
         // render the loaded model
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
+        // model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
         ourShader.setMat4("model", model);
+
+        float radius = 20.0f;
+        float angleOffet = glm::radians(90.0f);
+        float offsetX0 = static_cast<float>(cos(glfwGetTime() + angleOffet * 0)) * radius;
+        float offsetZ0 = static_cast<float>(sin(glfwGetTime() + angleOffet * 0)) * radius;
+        float offsetX1 = static_cast<float>(cos(glfwGetTime() + angleOffet * 1)) * radius;
+        float offsetZ1 = static_cast<float>(sin(glfwGetTime() + angleOffet * 1)) * radius;
+        float offsetX2 = static_cast<float>(cos(glfwGetTime() + angleOffet * 2)) * radius;
+        float offsetZ2 = static_cast<float>(sin(glfwGetTime() + angleOffet * 2)) * radius;
+        float offsetX3 = static_cast<float>(cos(glfwGetTime() + angleOffet * 3)) * radius;
+        float offsetZ3 = static_cast<float>(sin(glfwGetTime() + angleOffet * 3)) * radius;
+
+        glm::vec3 lightPos0 = glm::vec3(offsetX0, pointLightPositions[0].y, offsetZ0);
+        glm::vec3 lightPos1 = glm::vec3(offsetX1, pointLightPositions[1].y, offsetZ1);
+        glm::vec3 lightPos2 = glm::vec3(offsetX2, pointLightPositions[2].y, offsetZ2);
+        glm::vec3 lightPos3 = glm::vec3(offsetX3, pointLightPositions[3].y, offsetZ3);
 
         // directional light
         ourShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
@@ -225,7 +203,7 @@ int main()
         ourShader.setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
         ourShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
         // point light 1
-        ourShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        ourShader.setVec3("pointLights[0].position", lightPos0);
         ourShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
         ourShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         ourShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -233,7 +211,7 @@ int main()
         ourShader.setFloat("pointLights[0].linear", 0.09f);
         ourShader.setFloat("pointLights[0].quadratic", 0.032f);
         // point light 2
-        ourShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        ourShader.setVec3("pointLights[1].position", lightPos1);
         ourShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
         ourShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
         ourShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
@@ -241,7 +219,7 @@ int main()
         ourShader.setFloat("pointLights[1].linear", 0.09f);
         ourShader.setFloat("pointLights[1].quadratic", 0.032f);
         // point light 3
-        ourShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        ourShader.setVec3("pointLights[2].position", lightPos2);
         ourShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
         ourShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
         ourShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
@@ -249,7 +227,7 @@ int main()
         ourShader.setFloat("pointLights[2].linear", 0.09f);
         ourShader.setFloat("pointLights[2].quadratic", 0.032f);
         // point light 4
-        ourShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        ourShader.setVec3("pointLights[3].position", lightPos3);
         ourShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
         ourShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
         ourShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
@@ -283,8 +261,12 @@ int main()
         for (unsigned int i = 0; i < 4; i++)
         {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, pointLightPositions[i]);
-            model = glm::scale(model, glm::vec3(6.0f));
+            float angleOffet = glm::radians(90.0f * i);
+            float offsetX = static_cast<float>(sin(glfwGetTime() + angleOffet)) * radius;
+            float offsetZ = static_cast<float>(cos(glfwGetTime() + angleOffet)) * radius;
+            glm::vec3 lightPosi = glm::vec3(offsetX, pointLightPositions[i].y * (1 + 0.3 * sin(glfwGetTime() * 0.4)), offsetZ);
+            model = glm::translate(model, lightPosi);
+            model = glm::scale(model, glm::vec3(4.0f));
             lightSourceShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

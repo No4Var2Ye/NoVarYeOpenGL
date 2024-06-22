@@ -12,6 +12,7 @@ shaders/
 lly/
 xyy/
 models/
+build/
 
 !models/ANBY/
 
@@ -21,3 +22,5 @@ models/
 
 # Files
 matrix.cpp
+*.nsi
+NoSetup.exe

@@ -18,7 +18,7 @@ enum Camera_Movement
 // 默认相机参数
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.0f;        // 移动速度
+const float SPEED = 10.0f;        // 移动速度
 const float SENSITIVITY = 0.08f; // 鼠标灵敏度
 const float ZOOM = 45.0f;
 
