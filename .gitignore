@@ -13,6 +13,7 @@ lly/
 xyy/
 models/
 build/
+compressed/
 
 !models/ANBY/
 
