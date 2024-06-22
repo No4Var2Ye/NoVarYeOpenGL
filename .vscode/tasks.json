@@ -22,6 +22,7 @@
                 "${workspaceFolder}/lib",
                 "-lglad",
                 "-lglfw3",
+                "-lassimp",
                 "-lopengl32",
                 "-lgdi32",
                 "-luser32",

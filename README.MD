@@ -17,3 +17,7 @@
 gcc ./src/glad.c -c -I ./include/ // 生成 .o文件
 ar -rc libglad.a glad.o           // 生成我们所需要的 .a文件
 ```
+
+``` shell
+mingw32-make.exe -j8
+```
