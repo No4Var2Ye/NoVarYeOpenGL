@@ -7,3 +7,17 @@
 REFS/
 docs/
 note/
+test/
+shaders/
+lly/
+xyy/
+models/
+
+!models/ANBY/
+
+
+!shaders/light_source/
+!shaders/loading/
+
+# Files
+matrix.cpp
