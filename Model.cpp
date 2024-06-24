@@ -49,10 +49,10 @@ glm::vec3 lightPos(0.0f, 30.0f, 30.0f);
 
 // 模型路径
 const char *modelPath = "assets/models/ANBY/anby.obj";
-// const char *modelPath = "assets/models/lly/scene.obj";
-// Model ourModel("assets/models/lly/scene.obj");
-// Model ourModel("assets/models/cup/cup.obj");
-// Model ourModel("assets/models/nanosuit/nanosuit.obj");
+// "assets/models/lly/scene.obj"
+// "assets/models/lly/scene.obj"
+// "assets/models/cup/cup.obj"
+// "assets/models/nanosuit/nanosuit.obj"
 
 int main()
 {
